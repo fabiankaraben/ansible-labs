@@ -1,0 +1,111 @@
+---
+- name: Create VM on ESXi Host
+  hosts: localhost  # Run on the machine executing the playbook (AWX node)
+  gather_facts: false
+  connection: local # Module executes locally, connecting remotely to ESXi
+
+  vars:
+    # --- ESXi Connection Details ---
+    # Use AWX Credentials for these in production!
+    esxi_hostname: "your-esxi-host.example.com" # REQUIRED: IP or FQDN of the ESXi host
+    esxi_username: "root"                      # REQUIRED: ESXi username
+    esxi_password: "YourEsxiPassword!"         # REQUIRED: ESXi password (Use AWX Credential/Vault!)
+    esxi_validate_certs: false                 # Set to 'true' if you have valid certs, 'false' to ignore self-signed
+
+    # --- VM Configuration ---
+    vm_name: "awx-deployed-vm-01"             # REQUIRED: Name for the new virtual machine
+    vm_guest_id: "centos7_64Guest"            # REQUIRED: VMware Guest OS ID (e.g., ubuntu64Guest, windows10_64Guest, rhel8_64Guest). Find valid IDs in vSphere docs/client.
+    vm_datastore: "datastore1"                 # REQUIRED: Name of the datastore on the ESXi host
+    vm_disk_size_gb: 40                        # REQUIRED: Size of the primary virtual disk in GB
+    vm_disk_type: "thin"                       # Disk provisioning type: thin, thick, eagerzeroedthick
+    vm_memory_mb: 2048                         # REQUIRED: Amount of RAM in MB
+    vm_num_cpus: 2                             # REQUIRED: Number of virtual CPUs
+    vm_network_name: "VM Network"              # REQUIRED: Name of the vSwitch Port Group to connect the VM to
+    vm_network_device_type: "vmxnet3"          # Network adapter type (e.g., vmxnet3, e1000, e1000e)
+    vm_scsi_controller_type: "pvscsi"          # SCSI controller type (e.g., lsilogic, lsilogicsas, pvscsi)
+
+    # --- Optional Settings ---
+    vm_notes: "VM deployed via Ansible AWX"    # Optional notes for the VM
+    vm_cdrom_iso_path: "[datastore1] ISOs/CentOS-7-x86_64-Minimal-2009.iso" # Optional: ISO path for OS install. Format: "[datastore_name] path/to/file.iso" Leave empty "" or null to skip.
+    vm_power_state_after_creation: "powered_on" # State after creation: powered_on, powered_off
+
+    # --- Advanced (Usually not needed for direct ESXi connection) ---
+    vm_datacenter: "ha-datacenter"             # Often 'ha-datacenter' for standalone ESXi. Only needed if connecting via vCenter sometimes.
+    # vm_cluster: ""                           # Typically not used when connecting directly to ESXi
+    vm_folder: "/{{ vm_datacenter }}/vm"       # VM inventory folder path. Default works for standalone ESXi. Adjust if needed.
+
+  tasks:
+    - name: Ensure prerequisite PyVmomi library is installed (informational)
+      ansible.builtin.assert:
+        that: True
+        quiet: True
+      vars:
+        ansible_python_interpreter: "{{ ansible_playbook_python }}"
+      module_defaults:
+        ansible.builtin.pip:
+          state: present
+          name: PyVmomi
+      # Note: This check runs *after* module loading. Add PyVmomi to your AWX EE for reliability.
+      # This task is more of a placeholder reminder here.
+
+    - name: "Create Virtual Machine '{{ vm_name }}' on ESXi '{{ esxi_hostname }}'"
+      community.vmware.vmware_guest:
+        hostname: "{{ esxi_hostname }}"
+        username: "{{ esxi_username }}"
+        password: "{{ esxi_password }}"
+        validate_certs: "{{ esxi_validate_certs }}"
+
+        name: "{{ vm_name }}"
+        folder: "{{ vm_folder }}"
+        datacenter: "{{ vm_datacenter }}"
+        # cluster: "{{ vm_cluster }}" # Usually omit for direct ESXi
+        esxi_hostname: "{{ esxi_hostname }}" # Specify target host directly
+
+        guest_id: "{{ vm_guest_id }}"
+        datastore: "{{ vm_datastore }}"
+        state: present # Ensure the VM exists (creates if not)
+
+        disk:
+          - size_gb: "{{ vm_disk_size_gb }}"
+            type: "{{ vm_disk_type }}"
+            datastore: "{{ vm_datastore }}"
+            scsi_controller: 0 # Associate with the first SCSI controller
+            scsi_type: "{{ vm_scsi_controller_type }}"
+            # You can add more disks here if needed
+
+        hardware:
+          memory_mb: "{{ vm_memory_mb }}"
+          num_cpus: "{{ vm_num_cpus }}"
+          scsi: "{{ vm_scsi_controller_type }}" # Define the type of the primary SCSI controller
+          # hotadd_cpu: true # Optional: Allow CPU hot add
+          # hotadd_memory: true # Optional: Allow Memory hot add
+
+        networks:
+          - name: "{{ vm_network_name }}"
+            device_type: "{{ vm_network_device_type }}"
+            # mac: "xx:xx:xx:xx:xx:xx" # Optional: Specify MAC address
+            # ip: "192.168.1.100" # Optional: Set static IP (requires VMware Tools usually)
+            # netmask: "255.255.255.0" # Optional
+            # gateway: "192.168.1.1" # Optional
+            # domain: "example.com" # Optional
+            # dns_servers: ["8.8.8.8", "1.1.1.1"] # Optional
+
+        cdrom: "{{ ({'type': 'iso', 'iso_path': vm_cdrom_iso_path}) if vm_cdrom_iso_path else ({'type': 'client'}) }}" # Connect ISO if path specified, else default client device
+
+        notes: "{{ vm_notes }}"
+      register: vm_creation_result
+
+    - name: "Set VM Power State to '{{ vm_power_state_after_creation }}'"
+      community.vmware.vmware_guest_powerstate:
+        hostname: "{{ esxi_hostname }}"
+        username: "{{ esxi_username }}"
+        password: "{{ esxi_password }}"
+        validate_certs: "{{ esxi_validate_certs }}"
+        name: "{{ vm_name }}"
+        state: "{{ vm_power_state_after_creation }}"
+        force: false # Set to true to force power state change (e.g., force power off)
+      when: vm_creation_result.changed and vm_power_state_after_creation != 'powered_off' # Only change power state if VM was newly created and target state is not off
+
+    - name: Show VM Creation Info
+      ansible.builtin.debug:
+        msg: "VM '{{ vm_name }}' created or configuration ensured. Final state: {{ vm_power_state_after_creation }}. IP: {{ vm_creation_result.instance.ipv4 | default('N/A (VMware Tools not reporting yet)') }}"
