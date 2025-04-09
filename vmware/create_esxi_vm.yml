@@ -22,7 +22,7 @@
     vm_num_cpus: 2                             # REQUIRED: Number of virtual CPUs
     vm_network_name: "VM Network"              # REQUIRED: Name of the vSwitch Port Group to connect the VM to
     vm_network_device_type: "vmxnet3"          # Network adapter type (e.g., vmxnet3, e1000, e1000e)
-    vm_scsi_controller_type: "pvscsi"          # SCSI controller type (e.g., lsilogic, lsilogicsas, pvscsi)
+    vm_scsi_controller_type: "lsilogic"          # SCSI controller type (e.g., lsilogic, lsilogicsas, pvscsi)
 
     # --- Optional Settings ---
     vm_notes: "VM deployed via Ansible AWX"    # Optional notes for the VM
