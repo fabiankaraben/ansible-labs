@@ -90,7 +90,7 @@
             # domain: "example.com" # Optional
             # dns_servers: ["8.8.8.8", "1.1.1.1"] # Optional
 
-        cdrom: "{{ ({'type': 'iso', 'iso_path': vm_cdrom_iso_path}) if vm_cdrom_iso_path else ({'type': 'client'}) }}" # Connect ISO if path specified, else default client device
+        # cdrom: "{{ ({'type': 'iso', 'iso_path': vm_cdrom_iso_path}) if vm_cdrom_iso_path else ({'type': 'client'}) }}" # Connect ISO if path specified, else default client device
 
         notes: "{{ vm_notes }}"
       register: vm_creation_result
