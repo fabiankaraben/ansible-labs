@@ -48,6 +48,16 @@
       # Note: This check runs *after* module loading. Add PyVmomi to your AWX EE for reliability.
       # This task is more of a placeholder reminder here.
 
+    - name: Verify ESXi host connectivity
+      ansible.builtin.ping:
+        data: "Checking connectivity to ESXi host {{ esxi_hostname }}"
+      register: ping_result
+
+    - name: Display ping result
+      ansible.builtin.debug:
+        var: ping_result
+        verbosity: 1
+
     - name: "Create Virtual Machine '{{ vm_name }}' on ESXi '{{ esxi_hostname }}'"
       community.vmware.vmware_guest:
         hostname: "{{ esxi_hostname }}"
