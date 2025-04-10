@@ -8,8 +8,8 @@
     # --- ESXi Connection Details ---
     # Use AWX Credentials for these in production!
     esxi_hostname: "your-esxi-host.example.com" # REQUIRED: IP or FQDN of the ESXi host
-    esxi_username: "root"                      # REQUIRED: ESXi username
-    esxi_password: "YourEsxiPassword!"         # REQUIRED: ESXi password (Use AWX Credential/Vault!)
+    # esxi_username: "root"                      # REQUIRED: ESXi username
+    # esxi_password: "YourEsxiPassword!"         # REQUIRED: ESXi password (Use AWX Credential/Vault!)
     esxi_validate_certs: false                 # Set to 'true' if you have valid certs, 'false' to ignore self-signed
 
     # --- VM Configuration ---
