@@ -107,10 +107,10 @@
 
     - name: "Set VM Power State to '{{ vm_power_state_after_creation }}'"
       community.vmware.vmware_guest_powerstate:
-        hostname: "{{ esxi_hostname }}"
-        username: "{{ esxi_username }}"
-        password: "{{ esxi_password }}"
-        validate_certs: "{{ esxi_validate_certs }}"
+        # hostname: "{{ esxi_hostname }}"
+        # username: "{{ esxi_username }}"
+        # password: "{{ esxi_password }}"
+        # validate_certs: "{{ esxi_validate_certs }}"
         name: "{{ vm_name }}"
         state: "{{ vm_power_state_after_creation }}"
         force: false # Set to true to force power state change (e.g., force power off)
