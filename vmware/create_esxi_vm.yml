@@ -7,10 +7,10 @@
   vars:
     # --- ESXi Connection Details ---
     # Use AWX Credentials for these in production!
-    esxi_hostname: "your-esxi-host.example.com" # REQUIRED: IP or FQDN of the ESXi host
+    # esxi_hostname: "your-esxi-host.example.com" # REQUIRED: IP or FQDN of the ESXi host
     # esxi_username: "root"                      # REQUIRED: ESXi username
     # esxi_password: "YourEsxiPassword!"         # REQUIRED: ESXi password (Use AWX Credential/Vault!)
-    esxi_validate_certs: false                 # Set to 'true' if you have valid certs, 'false' to ignore self-signed
+    # esxi_validate_certs: false                 # Set to 'true' if you have valid certs, 'false' to ignore self-signed
 
     # --- VM Configuration ---
     vm_name: "awx-deployed-vm-01"             # REQUIRED: Name for the new virtual machine
@@ -60,10 +60,10 @@
 
     - name: "Create Virtual Machine '{{ vm_name }}' on ESXi '{{ esxi_hostname }}'"
       community.vmware.vmware_guest:
-        hostname: "{{ esxi_hostname }}"
-        username: "{{ esxi_username }}"
-        password: "{{ esxi_password }}"
-        validate_certs: "{{ esxi_validate_certs }}"
+        # hostname: "{{ esxi_hostname }}"
+        # username: "{{ esxi_username }}"
+        # password: "{{ esxi_password }}"
+        # validate_certs: "{{ esxi_validate_certs }}"
 
         name: "{{ vm_name }}"
         folder: "{{ vm_folder }}"
