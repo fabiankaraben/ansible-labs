@@ -20,3 +20,15 @@ The user is: `admin`.
 
 To get the password for the admin user:
 `kubectl get secret -n awx awx-demo-admin-password -o jsonpath="{.data.password}" | base64 --decode ; echo`
+
+## Trying locally
+
+Install the collection:
+`ansible-galaxy collection install community.vmware --ignore-certs`
+
+`cd vmware/trying`
+
+Run the playbook:
+`./run.sh`
+
+

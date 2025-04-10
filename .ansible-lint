@@ -1,0 +1,18 @@
+ ---
+ # .ansible-lint
+
+ # Apply to YAML files (includes playbooks, vars files, etc.)
+ rules:
+   line-length:
+     max: 220 # Set your desired maximum line length here (e.g., 100, 120, 160)
+
+ # Optional: Apply specifically to Jinja2 templates (if needed)
+ # jinja2:
+ #   line-length:
+ #     max: 120
+
+ # You can add other rule configurations here as well
+ # Example: Disabling a rule
+ # skip_list:
+ #   - var-naming # Skip variable naming rule
+ 

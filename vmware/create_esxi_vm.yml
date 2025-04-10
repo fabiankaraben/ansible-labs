@@ -27,7 +27,7 @@
     # --- Optional Settings ---
     vm_notes: "VM deployed via Ansible AWX"    # Optional notes for the VM
     vm_cdrom_iso_path: "[datastore1] ISOs/CentOS-7-x86_64-Minimal-2009.iso" # Optional: ISO path for OS install. Format: "[datastore_name] path/to/file.iso" Leave empty "" or null to skip.
-    vm_power_state_after_creation: "powered_on" # State after creation: powered_on, powered_off
+    vm_power_state_after_creation: "powered-on" # State after creation: powered-on, powered-off
 
     # --- Advanced (Usually not needed for direct ESXi connection) ---
     vm_datacenter: "ha-datacenter"             # Often 'ha-datacenter' for standalone ESXi. Only needed if connecting via vCenter sometimes.
@@ -59,7 +59,7 @@
         folder: "{{ vm_folder }}"
         datacenter: "{{ vm_datacenter }}"
         # cluster: "{{ vm_cluster }}" # Usually omit for direct ESXi
-        esxi_hostname: "{{ esxi_hostname }}" # Specify target host directly
+        # esxi_hostname: "{{ esxi_hostname }}" # Specify target host directly
 
         guest_id: "{{ vm_guest_id }}"
         datastore: "{{ vm_datastore }}"
@@ -69,8 +69,8 @@
           - size_gb: "{{ vm_disk_size_gb }}"
             type: "{{ vm_disk_type }}"
             datastore: "{{ vm_datastore }}"
-            scsi_controller: 0 # Associate with the first SCSI controller
-            scsi_type: "{{ vm_scsi_controller_type }}"
+            # scsi_controller: 0 # Associate with the first SCSI controller
+            # scsi_type: "{{ vm_scsi_controller_type }}"
             # You can add more disks here if needed
 
         hardware:
